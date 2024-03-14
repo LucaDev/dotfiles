@@ -1,0 +1,99 @@
+# Set up the prompt
+autoload -Uz promptinit
+promptinit
+
+# Share history between shells
+setopt histignorealldups sharehistory
+
+# Use emacs keybindings
+bindkey -e
+
+# Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
+
+# Load homebrew completitions if available 
+if type brew &>/dev/null
+then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+fi
+
+# Use modern completion system
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=2
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+
+zstyle ':completion::complete:*' gain-privileges 1
+
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
+# Enable Starship Prompt
+eval "$(starship init zsh)"
+
+#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#ZSH_HIGHLIGHT_DIRS_BLACKLIST+=(/mnt/c)
+
+# Enable FZF integration
+source /opt/homebrew/opt/fzf/shell/completion.zsh
+source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+
+# Enable thefuck
+#eval $(thefuck --alias --enable-experimental-instant-mode)
+
+# Add ztcp support
+zmodload zsh/net/tcp
+
+# Aliases and modern tool replacements
+alias ll="ls -alh"
+alias l="ls"
+alias ls="ls --color=auto"
+#alias cat="bat"
+#alias tree="eza --tree -alh"
+alias vim="nvim"
+alias tf="terraform"
+alias kctl="kubectl"
+alias cls="clear"
+
+# Add go binaries
+export PATH="${PATH}:${HOME}/go/bin"
+
+# Add krew plugins
+export PATH="${PATH}:${HOME}/.krew/bin"
+
+# Add GraalVM
+export PATH=/Library/Java/JavaVirtualMachines/graalvm-20.jdk/Contents/Home/bin:"$PATH"
+
+export SOPS_AGE_KEY_FILE="${HOME}/.age/key.txt"
+
+# configure Window Title
+#autoload -Uz add-zsh-hook
+
+#function xterm_title_precmd () {
+#        print -Pn -- '\e]2;%n@%m %~\a'
+#        [[ "$TERM" == 'screen'* ]] && print -Pn -- '\e_\005{g}%n\005{-}@\005{m}%m\005{-} \005{B}%~\005{-}\e\\'
+#}
+
+#function xterm_title_preexec () {
+#        print -Pn -- '\e]2;%n@%m %~ %# ' && print -n -- "${(q)1}\a"
+#        [[ "$TERM" == 'screen'* ]] && { print -Pn -- '\e_\005{g}%n\005{-}@\005{m}%m\005{-} \005{B}%~\005{-} %# ' && print -n -- "${(q)1}\e\\"; }
+#}
+
+#if [[ "$TERM" == (Eterm*|alacritty*|aterm*|gnome*|konsole*|kterm*|putty*|rxvt*|screen*|tmux*|xterm*) ]]; then
+#        add-zsh-hook -Uz precmd xterm_title_precmd
+#        add-zsh-hook -Uz preexec xterm_title_preexec
+#fi
